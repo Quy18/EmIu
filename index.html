@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Em Có Yêu Anh Không?</title>
     <style>
+        /* --- CSS giữ nguyên như của bạn --- */
         body {
             margin: 0;
             min-height: 100vh;
@@ -194,12 +195,10 @@
 
     <script>
         const supabaseUrl = 'https://ulczlwuzkspfuxtorttr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3psd3V6a3NwZnV4dG9ydHRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2Mjg4NzIsImV4cCI6MjA2ODIwNDg3Mn0.6x-qTXIwIrPt7DJ6Bv1O2eiGrlETKoOK9AvxZTEzRvo'; // Thay bằng anon key từ Supabase Dashboard
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-        console.log('Supabase initialized with URL:', supabaseUrl);
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3psd3V6a3NwZnV4dG9ydHRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2Mjg4NzIsImV4cCI6MjA2ODIwNDg3Mn0.6x-qTXIwIrPt7DJ6Bv1O2eiGrlETKoOK9AvxZTEzRvo';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         function swapButtons() {
-            console.log('Swapping buttons...');
             const buttons = document.getElementById('buttons');
             const yesBtn = buttons.children[0];
             const noBtn = buttons.children[1];
@@ -207,55 +206,47 @@
         }
 
         function showLove() {
-            console.log('Showing love scene...');
             const loveScene = document.getElementById('loveScene');
             loveScene.classList.add('active');
             const container = document.querySelector('.container');
             container.style.display = 'none';
 
-            function createHeart() {
-                console.log('Creating heart animation...');
-                const heart = document.createElement('div');
-                heart.className = 'heart';
-                heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.animationDuration = Math.random() * 2 + 3 + 's';
-                document.body.appendChild(heart);
-                setTimeout(() => heart.remove(), 5000);
-            }
-
-            function createSparkle() {
-                console.log('Creating sparkle animation...');
-                const sparkle = document.createElement('div');
-                sparkle.className = 'sparkle';
-                sparkle.style.left = Math.random() * 100 + 'vw';
-                sparkle.style.top = Math.random() * 100 + 'vh';
-                document.body.appendChild(sparkle);
-                setTimeout(() => sparkle.remove(), 2000);
-            }
-
             setInterval(createHeart, 300);
             setInterval(createSparkle, 500);
         }
 
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 2 + 3 + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }
+
+        function createSparkle() {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = Math.random() * 100 + 'vw';
+            sparkle.style.top = Math.random() * 100 + 'vh';
+            document.body.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 2000);
+        }
+
         async function handleImageUpload(event) {
-            console.log('File input changed, starting upload process...');
             const file = event.target.files[0];
             if (file && file.type.startsWith('image/')) {
-                console.log('Valid image file selected:', file.name);
                 const fileName = `${Date.now()}_${file.name}`;
-                console.log('Uploading file with name:', fileName);
-                const { error } = await supabase.storage
+                const { error } = await supabaseClient.storage
                     .from('uploaded-images')
                     .upload(fileName, file, { upsert: true });
 
                 if (error) {
                     console.error('Upload failed:', error.message);
                 } else {
-                    console.log('Upload successful, getting URL...');
-                    const { data } = supabase.storage
+                    const { data } = supabaseClient.storage
                         .from('uploaded-images')
                         .getPublicUrl(fileName);
-                    console.log('Public URL retrieved:', data.publicUrl);
                     const img = document.createElement('img');
                     img.src = data.publicUrl;
                     const deleteBtn = document.createElement('button');
@@ -265,46 +256,34 @@
                     const gallery = document.getElementById('gallery');
                     gallery.appendChild(img);
                     gallery.appendChild(deleteBtn);
-                    console.log('Image added to gallery, reloading images...');
                     loadImages();
                 }
-            } else {
-                console.log('No valid image file selected or file type invalid.');
             }
         }
 
         async function deleteImage(fileName, btn) {
-            console.log('Deleting image:', fileName);
-            const { error } = await supabase.storage
+            const { error } = await supabaseClient.storage
                 .from('uploaded-images')
                 .remove([fileName]);
             if (!error) {
-                console.log('Image deleted successfully.');
                 const gallery = document.getElementById('gallery');
                 const img = btn.previousElementSibling;
                 if (img) gallery.removeChild(img);
                 gallery.removeChild(btn);
-            } else {
-                console.error('Delete failed:', error.message);
             }
         }
 
         async function loadImages() {
-            console.log('Loading images from storage...');
-            const { data, error } = await supabase.storage
+            const { data, error } = await supabaseClient.storage
                 .from('uploaded-images')
                 .list();
-            if (error) {
-                console.error('Load failed:', error.message);
-            } else {
-                console.log('Images loaded, count:', data.length);
+            if (!error && data) {
                 const gallery = document.getElementById('gallery');
                 gallery.innerHTML = '';
                 data.forEach(file => {
-                    const { data: urlData } = supabase.storage
+                    const { data: urlData } = supabaseClient.storage
                         .from('uploaded-images')
                         .getPublicUrl(file.name);
-                    console.log('Processing image:', file.name, 'URL:', urlData.publicUrl);
                     const img = document.createElement('img');
                     img.src = urlData.publicUrl;
                     const deleteBtn = document.createElement('button');
@@ -321,7 +300,6 @@
 
         setInterval(() => {
             if (!document.getElementById('loveScene').classList.contains('active')) {
-                console.log('Adding heart and sparkle animations...');
                 createHeart();
                 createSparkle();
             }
