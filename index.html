@@ -1,0 +1,355 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Em Có Yêu Anh Không?</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #fce4ec, #e8eaf6);
+            transition: background 0.5s;
+        }
+        .container, .love-scene {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 2em;
+            color: #ff69b4;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        button:hover {
+            transform: scale(1.1);
+            background-color: #ff85c0;
+        }
+        .heart {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #ff69b4;
+            transform: rotate(-45deg);
+            animation: fall 4s linear infinite, blink 1.5s infinite;
+        }
+        .heart::before, .heart::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #ff69b4;
+            border-radius: 50%;
+        }
+        .heart::before {
+            top: -7.5px;
+            left: 0;
+        }
+        .heart::after {
+            left: 7.5px;
+            top: 0;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(-45deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(-45deg); opacity: 0; }
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        .sparkle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 215, 0, 0.8);
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0% { transform: scale(0.5); opacity: 0.5; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(0.5); opacity: 0.5; }
+        }
+        .love-scene {
+            display: none;
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .love-scene.active {
+            display: block;
+        }
+        .love-scene h1 {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.7);
+        }
+        .upload-section {
+            margin-top: 20px;
+        }
+        .upload-section input[type="file"] {
+            display: none;
+        }
+        .upload-section label {
+            padding: 10px 20px;
+            background-color: #ff69b4;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .upload-section label:hover {
+            background-color: #ff85c0;
+        }
+        .gallery {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .gallery img {
+            max-width: 120px;
+            height: auto;
+            margin: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+        }
+        .gallery img:hover + .delete-btn,
+        .delete-btn:hover {
+            display: block;
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.5em; }
+            button { font-size: 1em; padding: 8px 15px; }
+            .container, .love-scene { width: 95%; padding: 15px; }
+            .gallery img { max-width: 100px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Em có yêu anh không <3</h1>
+        <div class="buttons" id="buttons">
+            <button onclick="showLove()">Có</button>
+            <button onclick="swapButtons()">Không</button>
+        </div>
+    </div>
+    <div class="love-scene" id="loveScene">
+        <h1>Anh Yêu Em Nhiều Lắm! 💖</h1>
+        <div class="upload-section">
+            <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)">
+            <label for="imageUpload">Tải ảnh lên</label>
+        </div>
+        <div class="gallery" id="gallery"></div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // Cấu hình Supabase (thay bằng thông tin của bạn)
+        const supabaseUrl = 'https://ulczlwuzkspfuxtorttr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3psd3V6a3NwZnV4dG9ydHRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2Mjg4NzIsImV4cCI6MjA2ODIwNDg3Mn0.6x-qTXIwIrPt7DJ6Bv1O2eiGrlETKoOK9AvxZTEzRvo';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        function swapButtons() {
+            const buttons = document.getElementById('buttons');
+            const yesBtn = buttons.children[0];
+            const noBtn = buttons.children[1];
+            buttons.insertBefore(noBtn, yesBtn);
+        }
+
+        function showLove() {
+            const loveScene = document.getElementById('loveScene');
+            loveScene.classList.add('active');
+            const container = document.querySelector('.container');
+            container.style.display = 'none';
+
+            function createHeart() {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = Math.random() * 2 + 3 + 's';
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 5000);
+            }
+
+            function createSparkle() {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = Math.random() * 100 + 'vw';
+                sparkle.style.top = Math.random() * 100 + 'vh';
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 2000);
+            }
+
+            setInterval(createHeart, 300);
+            setInterval(createSparkle, 500);
+        }
+
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const fileName = `${Date.now()}_${file.name}`;
+                const { error } = await supabase.storage
+                    .from('uploaded-images')
+                    .upload(fileName, file, { upsert: true });
+
+                if (error) {
+                    console.error('Upload failed:', error.message);
+                } else {
+                    const { data } = supabase.storage
+                        .from('uploaded-images')
+                        .getPublicUrl(fileName);
+                    const img = document.createElement('img');
+                    img.src = data.publicUrl;
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.textContent = '×';
+                    deleteBtn.onclick = () => deleteImage(fileName, deleteBtn);
+                    const gallery = document.getElementById('gallery');
+                    gallery.appendChild(img);
+                    gallery.appendChild(deleteBtn);
+                    loadImages(); // Cập nhật gallery
+                }
+            }
+        }
+
+        async function deleteImage(fileName, btn) {
+            const { error } = await supabase.storage
+                .from('uploaded-images')
+                .remove([fileName]);
+            if (!error) {
+                const gallery = document.getElementById('gallery');
+                const img = btn.previousElementSibling;
+                if (img) gallery.removeChild(img);
+                gallery.removeChild(btn);
+            } else {
+                console.error('Delete failed:', error.message);
+            }
+        }
+
+        async function loadImages() {
+            const { data, error } = await supabase.storage
+                .from('uploaded-images')
+                .list();
+            if (error) {
+                console.error('Load failed:', error.message);
+            } else {
+                const gallery = document.getElementById('gallery');
+                gallery.innerHTML = '';
+                data.forEach(file => {
+                    const { data: urlData } = supabase.storage
+                        .from('uploaded-images')
+                        .getPublicUrl(file.name);
+                    const img = document.createElement('img');
+                    img.src = urlData.publicUrl;
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.textContent = '×';
+                    deleteBtn.onclick = () => deleteImage(file.name, deleteBtn);
+                    gallery.appendChild(img);
+                    gallery.appendChild(deleteBtn);
+                });
+            }
+        }
+
+        // Tải ảnh đã lưu khi trang được mở
+        window.onload = loadImages;
+
+        // Thêm hiệu ứng ban đầu
+        setInterval(() => {
+            if (!document.getElementById('loveScene').classList.contains('active')) {
+                createHeart();
+                createSparkle();
+            }
+        }, 500);
+    </script>
+</body>
+</html>
