@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -229,16 +190,16 @@
         <div class="gallery" id="gallery"></div>
     </div>
 
-    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // Cấu hình Supabase (thay bằng thông tin của bạn)
         const supabaseUrl = 'https://ulczlwuzkspfuxtorttr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3psd3V6a3NwZnV4dG9ydHRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2Mjg4NzIsImV4cCI6MjA2ODIwNDg3Mn0.6x-qTXIwIrPt7DJ6Bv1O2eiGrlETKoOK9AvxZTEzRvo';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3psd3V6a3NwZnV4dG9ydHRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2Mjg4NzIsImV4cCI6MjA2ODIwNDg3Mn0.6x-qTXIwIrPt7DJ6Bv1O2eiGrlETKoOK9AvxZTEzRvo'; // Thay bằng anon key từ Supabase Dashboard
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        console.log('Supabase initialized with URL:', supabaseUrl);
 
         function swapButtons() {
+            console.log('Swapping buttons...');
             const buttons = document.getElementById('buttons');
             const yesBtn = buttons.children[0];
             const noBtn = buttons.children[1];
@@ -246,12 +207,14 @@
         }
 
         function showLove() {
+            console.log('Showing love scene...');
             const loveScene = document.getElementById('loveScene');
             loveScene.classList.add('active');
             const container = document.querySelector('.container');
             container.style.display = 'none';
 
             function createHeart() {
+                console.log('Creating heart animation...');
                 const heart = document.createElement('div');
                 heart.className = 'heart';
                 heart.style.left = Math.random() * 100 + 'vw';
@@ -261,6 +224,7 @@
             }
 
             function createSparkle() {
+                console.log('Creating sparkle animation...');
                 const sparkle = document.createElement('div');
                 sparkle.className = 'sparkle';
                 sparkle.style.left = Math.random() * 100 + 'vw';
@@ -274,9 +238,12 @@
         }
 
         async function handleImageUpload(event) {
+            console.log('File input changed, starting upload process...');
             const file = event.target.files[0];
             if (file && file.type.startsWith('image/')) {
+                console.log('Valid image file selected:', file.name);
                 const fileName = `${Date.now()}_${file.name}`;
+                console.log('Uploading file with name:', fileName);
                 const { error } = await supabase.storage
                     .from('uploaded-images')
                     .upload(fileName, file, { upsert: true });
@@ -284,9 +251,11 @@
                 if (error) {
                     console.error('Upload failed:', error.message);
                 } else {
+                    console.log('Upload successful, getting URL...');
                     const { data } = supabase.storage
                         .from('uploaded-images')
                         .getPublicUrl(fileName);
+                    console.log('Public URL retrieved:', data.publicUrl);
                     const img = document.createElement('img');
                     img.src = data.publicUrl;
                     const deleteBtn = document.createElement('button');
@@ -296,16 +265,21 @@
                     const gallery = document.getElementById('gallery');
                     gallery.appendChild(img);
                     gallery.appendChild(deleteBtn);
-                    loadImages(); // Cập nhật gallery
+                    console.log('Image added to gallery, reloading images...');
+                    loadImages();
                 }
+            } else {
+                console.log('No valid image file selected or file type invalid.');
             }
         }
 
         async function deleteImage(fileName, btn) {
+            console.log('Deleting image:', fileName);
             const { error } = await supabase.storage
                 .from('uploaded-images')
                 .remove([fileName]);
             if (!error) {
+                console.log('Image deleted successfully.');
                 const gallery = document.getElementById('gallery');
                 const img = btn.previousElementSibling;
                 if (img) gallery.removeChild(img);
@@ -316,18 +290,21 @@
         }
 
         async function loadImages() {
+            console.log('Loading images from storage...');
             const { data, error } = await supabase.storage
                 .from('uploaded-images')
                 .list();
             if (error) {
                 console.error('Load failed:', error.message);
             } else {
+                console.log('Images loaded, count:', data.length);
                 const gallery = document.getElementById('gallery');
                 gallery.innerHTML = '';
                 data.forEach(file => {
                     const { data: urlData } = supabase.storage
                         .from('uploaded-images')
                         .getPublicUrl(file.name);
+                    console.log('Processing image:', file.name, 'URL:', urlData.publicUrl);
                     const img = document.createElement('img');
                     img.src = urlData.publicUrl;
                     const deleteBtn = document.createElement('button');
@@ -340,12 +317,11 @@
             }
         }
 
-        // Tải ảnh đã lưu khi trang được mở
         window.onload = loadImages;
 
-        // Thêm hiệu ứng ban đầu
         setInterval(() => {
             if (!document.getElementById('loveScene').classList.contains('active')) {
+                console.log('Adding heart and sparkle animations...');
                 createHeart();
                 createSparkle();
             }
