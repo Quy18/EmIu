@@ -1,309 +1,212 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Em Có Yêu Anh Không?</title>
-    <style>
-        /* --- CSS giữ nguyên như của bạn --- */
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
-            overflow-y: auto;
-            background: linear-gradient(135deg, #fce4ec, #e8eaf6);
-            transition: background 0.5s;
-        }
-        .container, .love-scene {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            margin: 20px auto;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            font-size: 2em;
-            color: #ff69b4;
-            margin-bottom: 20px;
-            text-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
-        }
-        .buttons {
-            margin-top: 20px;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 0 10px;
-            font-size: 1.1em;
-            cursor: pointer;
-            background-color: #ff69b4;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            transition: transform 0.3s, background-color 0.3s;
-        }
-        button:hover {
-            transform: scale(1.1);
-            background-color: #ff85c0;
-        }
-        .heart {
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            background: #ff69b4;
-            transform: rotate(-45deg);
-            animation: fall 4s linear infinite, blink 1.5s infinite;
-        }
-        .heart::before, .heart::after {
-            content: '';
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            background: #ff69b4;
-            border-radius: 50%;
-        }
-        .heart::before {
-            top: -7.5px;
-            left: 0;
-        }
-        .heart::after {
-            left: 7.5px;
-            top: 0;
-        }
-        @keyframes fall {
-            0% { transform: translateY(-100vh) rotate(-45deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(-45deg); opacity: 0; }
-        }
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
-        .sparkle {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: rgba(255, 215, 0, 0.8);
-            border-radius: 50%;
-            animation: twinkle 2s infinite ease-in-out;
-        }
-        @keyframes twinkle {
-            0% { transform: scale(0.5); opacity: 0.5; }
-            50% { transform: scale(1.5); opacity: 1; }
-            100% { transform: scale(0.5); opacity: 0.5; }
-        }
-        .love-scene {
-            display: none;
-            position: relative;
-            width: 90%;
-            max-width: 500px;
-            margin: 20px auto;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        }
-        .love-scene.active {
-            display: block;
-        }
-        .love-scene h1 {
-            background: rgba(255, 255, 255, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            text-shadow: 0 0 10px rgba(255, 105, 180, 0.7);
-        }
-        .upload-section {
-            margin-top: 20px;
-        }
-        .upload-section input[type="file"] {
-            display: none;
-        }
-        .upload-section label {
-            padding: 10px 20px;
-            background-color: #ff69b4;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .upload-section label:hover {
-            background-color: #ff85c0;
-        }
-        .gallery {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .gallery img {
-            max-width: 120px;
-            height: auto;
-            margin: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-        .delete-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            display: none;
-        }
-        .gallery img:hover + .delete-btn,
-        .delete-btn:hover {
-            display: block;
-        }
-        @media (max-width: 480px) {
-            h1 { font-size: 1.5em; }
-            button { font-size: 1em; padding: 8px 15px; }
-            .container, .love-scene { width: 95%; padding: 15px; }
-            .gallery img { max-width: 100px; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Em Có Yêu Anh Không?</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+      background: linear-gradient(135deg, #fce4ec, #e8eaf6);
+    }
+
+    .container, .love-scene {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      margin: 20px auto;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 2em;
+      color: #ff69b4;
+      margin-bottom: 20px;
+      text-shadow: 0 0 8px rgba(255, 105, 180, 0.5);
+    }
+
+    .buttons {
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 0 10px;
+      font-size: 1.1em;
+      cursor: pointer;
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      transition: transform 0.3s, background-color 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+      background-color: #ff85c0;
+    }
+
+    .love-scene {
+      display: none;
+    }
+
+    .love-scene.active {
+      display: block;
+    }
+
+    .heart, .flying-img {
+      position: absolute;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .heart {
+      width: 15px;
+      height: 15px;
+      background: #ff69b4;
+      transform: rotate(-45deg);
+      animation: fall 4s linear infinite, blink 1.5s infinite;
+    }
+
+    .heart::before, .heart::after {
+      content: '';
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      background: #ff69b4;
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -7.5px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: 7.5px;
+      top: 0;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-100vh) rotate(-45deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(-45deg); opacity: 0; }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: rgba(255, 215, 0, 0.8);
+      border-radius: 50%;
+      animation: twinkle 2s infinite ease-in-out;
+      z-index: 1;
+    }
+
+    @keyframes twinkle {
+      0% { transform: scale(0.5); opacity: 0.5; }
+      50% { transform: scale(1.5); opacity: 1; }
+      100% { transform: scale(0.5); opacity: 0.5; }
+    }
+
+    .flying-img {
+      width: 100px;
+      animation: floatUp 5s linear forwards;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.5em; }
+      button { font-size: 1em; padding: 8px 15px; }
+      .container, .love-scene { width: 95%; padding: 15px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Em có yêu anh không <3</h1>
-        <div class="buttons" id="buttons">
-            <button onclick="showLove()">Có</button>
-            <button onclick="swapButtons()">Không</button>
-        </div>
+  <div class="container">
+    <h1>Em có yêu anh không? 💕</h1>
+    <div class="buttons" id="buttons">
+      <button onclick="showLove()">Có</button>
+      <button onclick="swapButtons()">Không</button>
     </div>
-    <div class="love-scene" id="loveScene">
-        <h1>Anh Yêu Em Nhiều Lắm! 💖</h1>
-        <div class="upload-section">
-            <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)">
-            <label for="imageUpload">Tải ảnh lên</label>
-        </div>
-        <div class="gallery" id="gallery"></div>
-    </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <div class="love-scene" id="loveScene">
+    <h1>Anh Yêu Em Nhiều Lắm! 💖</h1>
+  </div>
 
-    <script>
-        const supabaseUrl = 'https://ulczlwuzkspfuxtorttr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3psd3V6a3NwZnV4dG9ydHRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2Mjg4NzIsImV4cCI6MjA2ODIwNDg3Mn0.6x-qTXIwIrPt7DJ6Bv1O2eiGrlETKoOK9AvxZTEzRvo';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+  <script>
+    function swapButtons() {
+      const buttons = document.getElementById('buttons');
+      const yesBtn = buttons.children[0];
+      const noBtn = buttons.children[1];
+      buttons.insertBefore(noBtn, yesBtn);
+    }
 
-        function swapButtons() {
-            const buttons = document.getElementById('buttons');
-            const yesBtn = buttons.children[0];
-            const noBtn = buttons.children[1];
-            buttons.insertBefore(noBtn, yesBtn);
-        }
+    function showLove() {
+      const loveScene = document.getElementById('loveScene');
+      loveScene.classList.add('active');
+      const container = document.querySelector('.container');
+      container.style.display = 'none';
 
-        function showLove() {
-            const loveScene = document.getElementById('loveScene');
-            loveScene.classList.add('active');
-            const container = document.querySelector('.container');
-            container.style.display = 'none';
+      setInterval(createHeart, 300);
+      setInterval(createSparkle, 500);
+      setInterval(createFlyingImage, 400);
+    }
 
-            setInterval(createHeart, 300);
-            setInterval(createSparkle, 500);
-        }
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = Math.random() * 2 + 3 + 's';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 5000);
+    }
 
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.className = 'heart';
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.animationDuration = Math.random() * 2 + 3 + 's';
-            document.body.appendChild(heart);
-            setTimeout(() => heart.remove(), 5000);
-        }
+    function createSparkle() {
+      const sparkle = document.createElement('div');
+      sparkle.className = 'sparkle';
+      sparkle.style.left = Math.random() * 100 + 'vw';
+      sparkle.style.top = Math.random() * 100 + 'vh';
+      document.body.appendChild(sparkle);
+      setTimeout(() => sparkle.remove(), 2000);
+    }
 
-        function createSparkle() {
-            const sparkle = document.createElement('div');
-            sparkle.className = 'sparkle';
-            sparkle.style.left = Math.random() * 100 + 'vw';
-            sparkle.style.top = Math.random() * 100 + 'vh';
-            document.body.appendChild(sparkle);
-            setTimeout(() => sparkle.remove(), 2000);
-        }
-
-        async function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const fileName = `${Date.now()}_${file.name}`;
-                const { error } = await supabaseClient.storage
-                    .from('uploaded-images')
-                    .upload(fileName, file, { upsert: true });
-
-                if (error) {
-                    console.error('Upload failed:', error.message);
-                } else {
-                    const { data } = supabaseClient.storage
-                        .from('uploaded-images')
-                        .getPublicUrl(fileName);
-                    const img = document.createElement('img');
-                    img.src = data.publicUrl;
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'delete-btn';
-                    deleteBtn.textContent = '×';
-                    deleteBtn.onclick = () => deleteImage(fileName, deleteBtn);
-                    const gallery = document.getElementById('gallery');
-                    gallery.appendChild(img);
-                    gallery.appendChild(deleteBtn);
-                    loadImages();
-                }
-            }
-        }
-
-        async function deleteImage(fileName, btn) {
-            const { error } = await supabaseClient.storage
-                .from('uploaded-images')
-                .remove([fileName]);
-            if (!error) {
-                const gallery = document.getElementById('gallery');
-                const img = btn.previousElementSibling;
-                if (img) gallery.removeChild(img);
-                gallery.removeChild(btn);
-            }
-        }
-
-        async function loadImages() {
-            const { data, error } = await supabaseClient.storage
-                .from('uploaded-images')
-                .list();
-            if (!error && data) {
-                const gallery = document.getElementById('gallery');
-                gallery.innerHTML = '';
-                data.forEach(file => {
-                    const { data: urlData } = supabaseClient.storage
-                        .from('uploaded-images')
-                        .getPublicUrl(file.name);
-                    const img = document.createElement('img');
-                    img.src = urlData.publicUrl;
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'delete-btn';
-                    deleteBtn.textContent = '×';
-                    deleteBtn.onclick = () => deleteImage(file.name, deleteBtn);
-                    gallery.appendChild(img);
-                    gallery.appendChild(deleteBtn);
-                });
-            }
-        }
-
-        window.onload = loadImages;
-
-        setInterval(() => {
-            if (!document.getElementById('loveScene').classList.contains('active')) {
-                createHeart();
-                createSparkle();
-            }
-        }, 500);
-    </script>
+    function createFlyingImage() {
+      const imagePaths = ['images/heart1.jpg', 'images/heart2.jpg', 'images/heart3.jpg', 'images/heart4.jpg',];
+      const img = document.createElement('img');
+      img.src = imagePaths[Math.floor(Math.random() * imagePaths.length)];
+      img.className = 'flying-img';
+      img.style.left = Math.random() * 100 + 'vw';
+      img.style.top = '100vh';
+      document.body.appendChild(img);
+      setTimeout(() => img.remove(), 5000);
+    }
+  </script>
 </body>
 </html>
